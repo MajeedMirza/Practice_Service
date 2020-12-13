@@ -1,10 +1,12 @@
 const config = require('./config/config')
 
 // Init the express application
-const app = require('./config/config/express')()
+const app = require('./config/express')()
 
 // Start the app by listening on <port>
-app.listen(config.port)
+const server = app.listen(config.port, () => {
+    console.log(`Starting server on port ${config.port}`)
+})
 
 process.on('SIGINT', function () {
     console.log("Gracefully shutting down from SIGINT (Ctrl-C)")
@@ -13,7 +15,5 @@ process.on('SIGINT', function () {
 })
 
 // Expose app
-exports = module.exports = app
+// exports = module.exports = app
 
-// Logging initialization
-console.log('Starting server on port 9090')

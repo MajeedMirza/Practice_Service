@@ -14,7 +14,6 @@ exports.getMessages = function (req, res) {
             return;
         }
         res.json(messages);
-
     });
 };
 
@@ -32,40 +31,33 @@ exports.getSingleMessage = function (req, res) {
 };
 
 exports.postMessage = function (req, res) {
-    console.log(req.body)
-    let savedMessage = model.insert(req.body)
-    if (_.isError(savedMessage)) {
-        res.status(500).send({
-            message: 'Database error saving new message.'
-        });
-        return;
-    }
-
-    res.json(savedMessage);
-};
+    model.insert(req.body).then(function (message) {
+        if (!message) {
+            res.status(500).send({
+                message: 'Database error saving new message.'
+            });
+        }
+        res.json(message);
+    })
+    .catch(function (err) {
+        res.status(400).send(err);
+    });
+}
 
 exports.deleteMessage = function (req, res) {
-
-    model.findById(req.params.id)
-        .exec(function (err, message) {
-            if (!message || err) {
-                res.status(404).send({
-                    message: 'Message not found'
-                });
-                return;
-            }
-
-            message.remove(function (err, removedMessage) {
-                if (err) {
-                    res.status(500).send({
-                        message: 'Database error deleting message.'
-                    });
-                    return;
-                }
-
-                res.json({
-                    message: 'The message has been removed.'
-                });
+    model.remove(req.params.id).then(function (message) {
+        if (!message){
+            res.status(404).send({
+                message: 'Message not found'
             });
+            return
+        }
+        res.json({
+            message: 'The message has been removed.'
         });
+    }).catch(function (err) {
+        res.status(500).send({
+            message: 'Database error deleting message.'
+        });
+    });
 };

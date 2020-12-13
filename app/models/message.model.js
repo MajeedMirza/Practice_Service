@@ -14,7 +14,7 @@ class Message {
 	}
 
 	findById(id) {
-		return db.find({ _id: id })
+		return db.findOne({ _id: id })
 	}
 
 	save(id, update) {
@@ -22,14 +22,22 @@ class Message {
 	}
 
 	remove(id) {
-		return db.remove({ _id: id })
+		return new Promise(function(resolve, reject) {
+			return db.remove({ _id: id }, function ( err, removed ) {
+				if (err) 
+					reject(err)
+				resolve(removed)
+			})
+		})
 	}
 
 	insert(data) {
-		return db.insert(data, (err, newDoc) => {
-			if (err)
-				return err
-			return newDoc
+		return new Promise(function(resolve, reject) {
+			return db.insert(data, (err, newDoc) => {
+				if (err)
+					reject(err)
+				resolve(newDoc)
+			})
 		})
 	}
 }

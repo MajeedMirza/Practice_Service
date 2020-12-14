@@ -5,6 +5,16 @@ const _ = require('lodash');
 
 const model = new Message()
 
+function isPalindrome(message) {
+    let halfLen = Math.floor(message.length/2)
+    for(let i=0; i < (halfLen); ++i){
+        if(message[i] !== message[message.length - i - 1]){
+            return false
+        }
+    }
+    return true
+}
+
 exports.getMessages = function (req, res) {
     model.find({}, {text: 1}).exec(function (err, messages) {
         if (err) {
@@ -31,7 +41,13 @@ exports.getSingleMessage = function (req, res) {
 };
 
 exports.postMessage = function (req, res) {
-    model.insert(req.body).then(function (message) {
+    let createMessage = req.body
+    // Nothing is technically a palindrome, therefore default to true
+    createMessage.isPalindrome = true 
+    if(createMessage.hasOwnProperty('text')){
+        createMessage.isPalindrome = isPalindrome(String(req.body.text))
+    }
+    model.insert(createMessage).then(function (message) {
         if (!message) {
             res.status(500).send({
                 message: 'Database error saving new message.'

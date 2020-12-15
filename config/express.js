@@ -7,6 +7,7 @@ let express = require('express')
 let compress = require('compression')
 let methodOverride = require('method-override')
 let config = require('./config')
+let prom = require('./prometheus')
 let router = express.Router()
 
 module.exports = function () {
@@ -32,6 +33,9 @@ module.exports = function () {
 		level: 9
 	}));
 
+	prom.init()
+	prom.startTimer(app)
+
 	// Showing stack errors
 	app.set('showStackError', true);
 
@@ -46,6 +50,8 @@ module.exports = function () {
 	router.use('/api/v1', require('../app/routes/message.server.routes'))
 	router.use('/api/v1', require('../app/routes/health.server.routes'))
 	app.use(router)
+
+	prom.endTimer(app)
 
 	// Assume 'not found' in the error msgs is a 404.
 	app.use(function (err, req, res, next) {

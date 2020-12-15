@@ -15,7 +15,8 @@ module.exports = _.extend( {
 		description: 'The basics to get a RESTful API working.',
 		keywords: 'NeDB, Express, Node.js'
 	},
-	db: 'mongodb://localhost/palindrome',
+	db: `mongodb+srv://${process.env.MONGO_USER || require('./env/development').MONGO_USER}:${process.env.MONGO_PASS || 
+			require('./env/development').MONGO_PASS}@cluster0.3godg.mongodb.net/Q?retryWrites=true&w=majority`,
 	dbOptions: {
 		useNewUrlParser: true,
 		useUnifiedTopology: true,

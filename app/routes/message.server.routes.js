@@ -5,21 +5,21 @@ let router = express.Router()
 
 const message = require('../controllers/message.server.controller');
 
-router.get('/messages', function(req, res){
+router.get('/messages', function(req, res, next){
     message.getMessages()    
     .then(function(messages){
         res.json(messages);
+        next()
     })
     .catch(function handleError(err) {
         console.log(err)
         res.status(500).send({
             message: 'Database error finding messages.'
         });
-        return;
     })
 })
 
-router.post('/messages/', function(req, res){
+router.post('/messages/', function(req, res, next){
     message.postMessage(req.body)
     .then(function (message) {
         if (!message) {
@@ -28,43 +28,45 @@ router.post('/messages/', function(req, res){
             });
         }
         res.json(message.ops[0]);
+        next()
     })
     .catch(function (err) {
         res.status(400).send("A document already exists with the same text");
     });
 })
 
-router.get('/messages/:id', function(req, res){
+router.get('/messages/:id', function(req, res, next){
     message.getSingleMessage(req.params.id)
     .then(function(message){
         if(!message){
             res.status(404).send({
                 message: 'Message not found'
             });
-            return
+        } else {
+            res.json(message);
         }
-        res.json(message);
+        next()
     })
     .catch(function handleError(err) {
         console.log(err)
         res.status(500).send({
             message: 'Database error finding messages.'
         });
-        return;
     })
 })
-router.delete('/messages/:id', function(req, res){
+router.delete('/messages/:id', function(req, res, next){
     message.deleteMessage(req.params.id)
     .then(function (message) {
         if (message.deletedCount === 0){
             res.status(404).send({
                 message: 'Message not found'
             });
-            return
+        } else {
+            res.json({
+                message: 'The message has been removed.'
+            });
         }
-        res.json({
-            message: 'The message has been removed.'
-        });
+        next()
     }).catch(function (err) {
         console.log(err)
         res.status(500).send({

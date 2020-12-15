@@ -13,7 +13,3 @@ process.on('SIGINT', function () {
     // some other closing procedures go here
     process.exit(1)
 })
-
-// Expose app
-// exports = module.exports = app
-

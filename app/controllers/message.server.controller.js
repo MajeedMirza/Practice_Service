@@ -3,7 +3,7 @@
 const Message = require('../models/message.model');
 const _ = require('lodash');
 
-const model = new Message()
+const model = Message
 
 function isPalindrome(message) {
     let halfLen = Math.floor(message.length/2)
@@ -15,65 +15,23 @@ function isPalindrome(message) {
     return true
 }
 
-exports.getMessages = function (req, res) {
-    model.find({}, {text: 1}).exec(function (err, messages) {
-        if (err) {
-            res.status(500).send({
-                message: 'Database error finding messages.'
-            });
-            return;
-        }
-        res.json(messages);
-    });
+exports.getMessages = function () {
+    return model.find()
 };
 
-exports.getSingleMessage = function (req, res) {
-    model.findById(req.params.id, {text: 1})
-        .exec(function (err, message) {
-            if (!message || err) {
-                res.status(404).send({
-                    message: 'Message not found'
-                });
-                return;
-            }
-            res.json(message);
-    });
+exports.getSingleMessage = function (id) {
+    return model.findById(id)
 };
 
-exports.postMessage = function (req, res) {
-    let createMessage = req.body
+exports.postMessage = function (createMessage) {
     // Nothing is technically a palindrome, therefore default to true
     createMessage.isPalindrome = true 
     if(createMessage.hasOwnProperty('text')){
-        createMessage.isPalindrome = isPalindrome(String(req.body.text))
+        createMessage.isPalindrome = isPalindrome(String(createMessage.text))
     }
-    model.insert(createMessage).then(function (message) {
-        if (!message) {
-            res.status(500).send({
-                message: 'Database error saving new message.'
-            });
-        }
-        res.json(message);
-    })
-    .catch(function (err) {
-        res.status(400).send(err);
-    });
+    return model.insert(createMessage)
 }
 
-exports.deleteMessage = function (req, res) {
-    model.remove(req.params.id).then(function (message) {
-        if (!message){
-            res.status(404).send({
-                message: 'Message not found'
-            });
-            return
-        }
-        res.json({
-            message: 'The message has been removed.'
-        });
-    }).catch(function (err) {
-        res.status(500).send({
-            message: 'Database error deleting message.'
-        });
-    });
+exports.deleteMessage = function (id) {
+    return model.remove(id)
 };
